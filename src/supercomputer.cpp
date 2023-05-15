@@ -48,8 +48,20 @@ private:
 			}
 		}
 
-		uint8_t current_data_set = 0;
+		uint32_t context_switches = min(try_kahn(1, q_1, q_2, in_degree), try_kahn(2, q_1, q_2, in_degree));
+
+		return context_switches;
+	}
+
+	uint32_t try_kahn(uint32_t start_data_set, queue<uint32_t>q_1, queue<uint32_t>q_2, vector<uint32_t> in_degree) {
+		if (start_data_set == 1 && q_1.empty())
+			return INT32_MAX;
+		if (start_data_set == 2 && q_2.empty())
+			return INT32_MAX;
+
+		uint8_t current_data_set = start_data_set;
 		uint32_t context_switches = 0;
+
 		while (!q_1.empty() || !q_2.empty()) {
 			uint32_t node;
 			if (current_data_set == 1) {
@@ -74,19 +86,8 @@ private:
 					context_switches++;
 					current_data_set = 1;
 				}
-			} else {
-				if (!q_1.empty()) {
-					node = q_1.front();
-					q_1.pop();
-					current_data_set = 1;
-				} else {
-					node = q_2.front();
-					q_2.pop();
-					current_data_set = 2;
-				}
 			}
 
-			topsort.push_back(node);
 			for (auto neigh : deps[node]) {
 				in_degree[neigh]--;
 				if (in_degree[neigh] == 0) {
