@@ -3,45 +3,46 @@
 using namespace std;
 
 class Task {
-public:
+	public:
 	void solve() {
 		read_input();
 		get_result();
 		print_output();
 	}
 
-private:
+	private:
 	// Initial graph
 	vector<vector<int32_t>> graph;
 	// Which SSC a node is part of
 	vector<int32_t> component;
-	// 
+	// Holds whether a SSC was visited
 	vector<bool> visited_component;
-
+	// Holds whether a node was visited
 	vector<bool> visited_node;
 
-	int32_t n, m, source;
+	int32_t nr_nodes, nr_edges, source;
 	int32_t result = 0;
 
-	// Used for discovering SSCs
+	// Holds the SSCs
 	vector<vector<int32_t>> ctc;
+	// Used for discovering SSCs
 	vector<int32_t> found;
 	vector<int32_t> low_link;
 	vector<int32_t> in_stack;
 	stack<int32_t> st;
 
 	void read_input() {
-		cin >> n >> m >> source;
+		cin >> nr_nodes >> nr_edges >> source;
 
-		graph = vector<vector<int32_t>>(n + 1, vector<int32_t>());
-		in_stack = vector<int32_t>(n + 1, 0);
-		found = vector<int32_t>(n + 1, -1);
-		low_link = vector<int32_t>(n + 1, 0);
-		component = vector<int32_t>(n + 1, -1);
-		visited_node = vector<bool>(n + 1, false);
+		graph = vector<vector<int32_t>>(nr_nodes + 1, vector<int32_t>());
+		in_stack = vector<int32_t>(nr_nodes + 1, 0);
+		found = vector<int32_t>(nr_nodes + 1, -1);
+		low_link = vector<int32_t>(nr_nodes + 1, 0);
+		component = vector<int32_t>(nr_nodes + 1, -1);
+		visited_node = vector<bool>(nr_nodes + 1, false);
 
 		int32_t x, y;
-		for (int32_t i = 0; i < m; i++) {
+		for (int32_t i = 0; i < nr_edges; i++) {
 			cin >> x >> y;
 
 			graph[x].push_back(y);
@@ -49,9 +50,10 @@ private:
 	}
 
 	void get_result() {
+		// Discover SSCs
 		int32_t current_start = 0;
 		tarjan(source, current_start);
-		for (int32_t i = 1; i <= n; i++) {
+		for (int32_t i = 1; i <= nr_nodes; i++) {
 			if (found[i] == -1) {
 				tarjan(i, current_start);
 			}
@@ -60,7 +62,9 @@ private:
 		result = ctc.size() - 1;
 		visited_component = vector<bool>(ctc.size(), false);
 		visited_component[component[source]] = true;
-		for (int32_t i = 1; i <= n; i++) {
+
+		// Traverse all nodes and decrement result if two SSC are connected
+		for (int32_t i = 1; i <= nr_nodes; i++) {
 			if (!visited_node[i])
 				dfs(i);
 		}
